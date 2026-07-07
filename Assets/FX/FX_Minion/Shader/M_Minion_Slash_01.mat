@@ -13,6 +13,7 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _SURFACE_TYPE_TRANSPARENT
+  - _TYPE_CUSTOM
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -61,12 +62,16 @@ Material:
     - _DstBlend: 10
     - _DstBlendAlpha: 10
     - _Float: 1
-    - _Length: 0
+    - _Length: 15
+    - _Mask_Noise_Scale: -0.2
+    - _Mask_SmoothStep_Edge1: 0.06
+    - _Mask_SmoothStep_Edge2: 0.3
     - _QueueControl: 0
     - _QueueOffset: 0
     - _SrcBlend: 5
     - _SrcBlendAlpha: 1
     - _Surface: 1
+    - _TYPE: 1
     - _ZTest: 4
     - _ZWrite: 0
     - _ZWriteControl: 0
@@ -74,7 +79,7 @@ Material:
     - _Alpha_Power: {r: 1, g: 2, b: 0, a: 0}
     - _Distortion_Speed: {r: 0, g: -0.5, b: 0, a: 0}
     - _Distortion_Tiling: {r: 1, g: 0.63, b: 0, a: 0}
-    - _Main_Color: {r: 8.058472, g: 31.514648, b: 67.79352, a: 1}
+    - _Main_Color: {r: 91.171196, g: 356.54755, b: 766.9961, a: 1}
     - _Mask_Power: {r: 1, g: 2, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

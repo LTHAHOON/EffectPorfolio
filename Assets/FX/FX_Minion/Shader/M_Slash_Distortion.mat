@@ -26,6 +26,7 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _SURFACE_TYPE_TRANSPARENT
+  - _TYPE_CUSTOM
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -58,6 +59,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Alpha: 1
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _Alpha_Power: 3
@@ -65,24 +67,30 @@ Material:
     - _CastShadows: 1
     - _Cull: 2
     - _Distortion_Intensity: 3
+    - _Distortion_Power: 3
     - _Distortion_Scale: 15
     - _DstBlend: 10
     - _DstBlendAlpha: 10
+    - _Mask_All_Power: 1
+    - _Mask_Bottom_Power: 2.7
     - _Mask_Down_Power: 3.21
-    - _Mask_Left_Power: 0
+    - _Mask_Left_Power: 1.5
     - _Mask_Power: 3
     - _Mask_Right_Power: 3
-    - _Mask_Top_Power: 3.21
+    - _Mask_Rigjt_Power: 1.5
+    - _Mask_TB_Power: 2
+    - _Mask_Top_Power: 2
     - _QueueControl: 0
     - _QueueOffset: 0
     - _SrcBlend: 5
     - _SrcBlendAlpha: 1
     - _Surface: 1
+    - _TYPE: 1
     - _ZTest: 4
     - _ZWrite: 0
     - _ZWriteControl: 0
     m_Colors:
-    - _Color: {r: 8.129831, g: 49.147232, b: 68.39385, a: 1}
+    - _Color: {r: 364.68478, g: 2204.6272, b: 3067.9846, a: 1}
     - _Distortion_Offset_Speed: {r: 0, g: -2, b: 0, a: 0}
     - _Distortion_Tiling: {r: 2, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
