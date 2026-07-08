@@ -41,6 +41,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _Mask_Tex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_74ce316b53ef423c817e7a534a88738d_Texture_1_Texture2D:
         m_Texture: {fileID: 2800000, guid: 93db43e7ef73b004d9a12cb85990c0a0, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -74,10 +78,10 @@ Material:
     - _Mask_All_Power: 1
     - _Mask_Bottom_Power: 2.7
     - _Mask_Down_Power: 3.21
-    - _Mask_Left_Power: 1.5
+    - _Mask_Left_Power: 3
     - _Mask_Power: 3
     - _Mask_Right_Power: 3
-    - _Mask_Rigjt_Power: 1.5
+    - _Mask_Rigjt_Power: 0
     - _Mask_TB_Power: 2
     - _Mask_Top_Power: 2
     - _QueueControl: 0
@@ -90,7 +94,7 @@ Material:
     - _ZWrite: 0
     - _ZWriteControl: 0
     m_Colors:
-    - _Color: {r: 364.68478, g: 2204.6272, b: 3067.9846, a: 1}
+    - _Color: {r: 140.54903, g: 766.9961, b: 639.99146, a: 1}
     - _Distortion_Offset_Speed: {r: 0, g: -2, b: 0, a: 0}
     - _Distortion_Tiling: {r: 2, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []

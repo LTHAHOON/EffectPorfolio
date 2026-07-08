@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_Minion_Slash_01
+  m_Name: M_Minion_Slash_Wind_Electric
   m_Shader: {fileID: -6465566751694194690, guid: e3466880e7c8f004c8af75db146bf6c4, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -18,19 +18,19 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3000
   stringTagMap:
     RenderType: Transparent
   disabledShaderPasses:
-  - DepthOnly
-  - MOTIONVECTORS
   - SHADOWCASTER
+  - MOTIONVECTORS
+  - DepthOnly
   m_LockedProperties: _Mask_Power
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
     - _Main_Tex:
-        m_Texture: {fileID: 2800000, guid: 5276b3ae9abc3984eaa080c2a737839a, type: 3}
+        m_Texture: {fileID: 2800000, guid: 51084232cda961c46a7eff31ff3d2acc, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_6fcb8c793ec0463e893448118e49a126_Texture_1_Texture2D:
@@ -57,13 +57,13 @@ Material:
     - _Alpha_Power: 1.95
     - _Blend: 0
     - _CastShadows: 0
-    - _Cull: 2
+    - _Cull: 0
     - _Distortion_Scale: 20.91
     - _DstBlend: 10
     - _DstBlendAlpha: 10
     - _Float: 1
-    - _Intensity: 28.5
-    - _Length: 15
+    - _Intensity: 1
+    - _Length: 2.7
     - _Mask_Noise_Scale: 0
     - _Mask_SmoothStep_Edge1: 0
     - _Mask_SmoothStep_Edge2: 0
@@ -80,8 +80,8 @@ Material:
     - _Alpha_Power: {r: 1, g: 2, b: 0, a: 0}
     - _Distortion_Speed: {r: 0, g: -0.5, b: 0, a: 0}
     - _Distortion_Tiling: {r: 1, g: 0.63, b: 0, a: 0}
-    - _Main_Color: {r: 16.39211, g: 89.45409, b: 76.65134, a: 1}
-    - _Mask_Power: {r: 100, g: 2.3, b: 0, a: 0}
+    - _Main_Color: {r: 0, g: 81.571754, b: 67.453575, a: 1}
+    - _Mask_Power: {r: 0.5, g: 0.5, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &3426920410012350893
