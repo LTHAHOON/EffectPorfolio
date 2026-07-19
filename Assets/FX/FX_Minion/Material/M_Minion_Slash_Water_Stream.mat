@@ -1,0 +1,177 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: M_Minion_Slash_Water_Stream
+  m_Shader: {fileID: -6465566751694194690, guid: 75c9bd76fe5c5704aae8328877f53859, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _ALPHATEST_ON
+  - _SURFACE_TYPE_TRANSPARENT
+  - _TYPE_CUSTOM
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3000
+  stringTagMap:
+    RenderType: Transparent
+  disabledShaderPasses:
+  - MOTIONVECTORS
+  - DepthOnly
+  - SHADOWCASTER
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 95c7619ce94ef654facb5ffa26d1483d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DisplacementGuide:
+        m_Texture: {fileID: 2800000, guid: 93db43e7ef73b004d9a12cb85990c0a0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GradientMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 95c7619ce94ef654facb5ffa26d1483d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Main_Tex:
+        m_Texture: {fileID: 2800000, guid: 95c7619ce94ef654facb5ffa26d1483d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SecondaryTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: -6.56, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Alpha: 1
+    - _AlphaClip: 1
+    - _AlphaToMask: 0
+    - _Alpha_Distortion_Scale: 5
+    - _Banding: 0
+    - _Bands: 7
+    - _Blend: 2
+    - _BlendOp: 0
+    - _BurnSize: 2.55
+    - _CameraFadingEnabled: 0
+    - _CameraFarFadeDistance: 2
+    - _CameraNearFadeDistance: 1
+    - _CastShadows: 0
+    - _CircleMask: 0
+    - _ColorMode: 0
+    - _Contrast: 0
+    - _Cull: 0
+    - _Culling: 2
+    - _Cutoff: 0
+    - _CutoffSoftness: 0.313
+    - _DisplacementAmount: 0
+    - _Dissolve: 0
+    - _Dissolve_Scale: 5
+    - _DistortionBlend: 0.5
+    - _DistortionEnabled: 0
+    - _DistortionStrength: 1
+    - _DistortionStrengthScaled: 0.1
+    - _DstBlend: 1
+    - _DstBlendAlpha: 1
+    - _ENUM: 0
+    - _FlipbookBlending: 0
+    - _FlipbookMode: 0
+    - _InnerRadius: -1
+    - _Intensity: 0
+    - _IntersectionThresholdMax: 4.33
+    - _Length: 1
+    - _Mask_Noise_Scale: -0.2
+    - _Mask_SmoothStep_Edge1: 0.06
+    - _Mask_SmoothStep_Edge2: 0.3
+    - _Mode: 0
+    - _OuterRadius: 0.035
+    - _Outline_Width: 0.65
+    - _PolarCoords: 0
+    - _Power: 2.03
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _RectHeight: 0.58
+    - _RectMask: 0
+    - _RectMaskCutoff: 0.336
+    - _RectSmoothness: 1
+    - _RectWidth: 0.61
+    - _SecondTex: 0
+    - _Smoothness: 0.464
+    - _SoftBlend: 0
+    - _SoftParticlesEnabled: 0
+    - _SoftParticlesFarFadeDistance: 1
+    - _SoftParticlesNearFadeDistance: 0
+    - _SrcBlend: 5
+    - _SrcBlendAlpha: 1
+    - _Surface: 1
+    - _TYPE: 1
+    - _Tex_Distortion_Scale: 7
+    - _VertexOffset: 0
+    - _VertexOffsetAmount: 0.1
+    - _ZTest: 4
+    - _ZWrite: 0
+    - _ZWriteControl: 0
+    m_Colors:
+    - _Alpha_Offset_Speed: {r: 1, g: 1, b: 0, a: 0}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
+    - _BurnCol: {r: 1, g: 0, b: 0, a: 1}
+    - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _Main_Color: {r: 0, g: 0.2830189, b: 0.22496374, a: 1}
+    - _Mask_Power: {r: 2, g: 1, b: 0, a: 0}
+    - _Outline_Color: {r: 0.54901963, g: 2.9960785, b: 2.4999666, a: 1}
+    - _PanningSpeed: {r: 0, g: 0, b: 0, a: 0}
+    - _SecondaryPanningSpeed: {r: 0, g: 0, b: 0, a: 0}
+    - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
+    - _Tex_Offset_Speed: {r: 1, g: 1, b: 0, a: 0}
+    - _Tex_Tiling: {r: 1, g: 1, b: 0, a: 0}
+    - _Vector2: {r: 3, g: 3, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
+--- !u!114 &139648253097210627
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
+  version: 10
