@@ -2,8 +2,13 @@ Shader "VFX/VFXMasterShaderTransparent"
 {
     Properties
     {
+        //Vertex color (particle Start Color)
+        [Space(20)]
+        [Toggle(VERTEX_COLOR)]
+        _UseVertexColor("Use particle vertex color", float) = 0
+
         _MainTex ("Texture", 2D) = "white" {}
-        _GradientMap("Gradient map", 2D) = "white" {} 
+        _GradientMap("Gradient map", 2D) = "white" {}
         [HDR]_Color("Color", Color) = (1,1,1,1)
 
         //Secondary texture
@@ -72,10 +77,23 @@ Shader "VFX/VFXMasterShaderTransparent"
         _RectHeight("Rectangle height", float) = 0
         _RectMaskCutoff("Rectangle mask cutoff", Range(0,1)) = 0
         _RectSmoothness("Rectangle mask smoothness", Range(0,1)) = 0
+
+        //Mask texture
+        [Space(20)]
+        [Toggle(MASK_TEX)]
+        _UseMaskTex("Use mask texture", float) = 0
+        _MaskTex("Mask texture (R channel)", 2D) = "white" {}
+        _MaskPanningSpeed("Mask panning speed", Vector) = (0,0,0,0)
+        [Toggle(MASK_INVERT)]
+        _MaskInvert("Invert mask", float) = 0
+        _MaskStrength("Mask strength", Range(0,1)) = 1
     }
     SubShader
     {
-        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
+        Tags
+        {
+            "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline"
+        }
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
         Offset -1, -1
@@ -85,11 +103,17 @@ Shader "VFX/VFXMasterShaderTransparent"
         Pass
         {
             Name "ForwardUnlit"
-            Tags { "LightMode"="UniversalForward" }
+            Tags
+            {
+                "LightMode"="UniversalForward"
+            }
 
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma shader_feature_local MASK_INVERT
+            #pragma shader_feature_local VERTEX_COLOR   // 추가
+            #pragma multi_compile_fog
             #pragma shader_feature_local SECONDARY_TEX
             #pragma shader_feature_local VERTEX_OFFSET
             #pragma shader_feature_local SOFT_BLEND
@@ -97,6 +121,8 @@ Shader "VFX/VFXMasterShaderTransparent"
             #pragma shader_feature_local POLAR
             #pragma shader_feature_local CIRCLE_MASK
             #pragma shader_feature_local RECT_MASK
+            #pragma shader_feature_local MASK_TEX
+            #pragma shader_feature_local MASK_INVERT
             #pragma multi_compile_fog
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -108,31 +134,39 @@ Shader "VFX/VFXMasterShaderTransparent"
             struct Attributes
             {
                 float4 positionOS : POSITION;
-                float2 uv        : TEXCOORD0;
-                float4 color     : COLOR;
-                float3 normalOS  : NORMAL;
+                float2 uv : TEXCOORD0;
+                float4 color : COLOR;
+                float3 normalOS : NORMAL;
             };
 
             struct Varyings
             {
-                float2 uv          : TEXCOORD0;
-                float2 displUV     : TEXCOORD1;
+                float2 uv : TEXCOORD0;
+                float2 displUV : TEXCOORD1;
                 float2 secondaryUV : TEXCOORD2;
-                float4 scrPos      : TEXCOORD3;
-                float  fogCoord    : TEXCOORD4;
-                float4 positionCS  : SV_POSITION;
-                float4 color       : COLOR;
+                float4 scrPos : TEXCOORD3;
+                float fogCoord : TEXCOORD4;
+                float2 maskUV : TEXCOORD5;
+                float4 positionCS : SV_POSITION;
+                float4 color : COLOR;
             };
 
-            TEXTURE2D(_MainTex);          SAMPLER(sampler_MainTex);
-            TEXTURE2D(_SecondaryTex);     SAMPLER(sampler_SecondaryTex);
-            TEXTURE2D(_GradientMap);      SAMPLER(sampler_GradientMap);
-            TEXTURE2D(_DisplacementGuide);SAMPLER(sampler_DisplacementGuide);
+            TEXTURE2D(_MainTex);
+            SAMPLER(sampler_MainTex);
+            TEXTURE2D(_SecondaryTex);
+            SAMPLER(sampler_SecondaryTex);
+            TEXTURE2D(_GradientMap);
+            SAMPLER(sampler_GradientMap);
+            TEXTURE2D(_DisplacementGuide);
+            SAMPLER(sampler_DisplacementGuide);
+            TEXTURE2D(_MaskTex);
+            SAMPLER(sampler_MaskTex);
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _MainTex_ST;
                 float4 _SecondaryTex_ST;
                 float4 _DisplacementGuide_ST;
+                float4 _MaskTex_ST;
 
                 float4 _Color;
                 float4 _BurnCol;
@@ -144,6 +178,7 @@ Shader "VFX/VFXMasterShaderTransparent"
 
                 float4 _PanningSpeed;
                 float4 _SecondaryPanningSpeed;
+                float4 _MaskPanningSpeed;
 
                 float _Cutoff;
                 float _CutoffSoftness;
@@ -163,18 +198,24 @@ Shader "VFX/VFXMasterShaderTransparent"
                 float _RectHeight;
                 float _RectWidth;
                 float _RectMaskCutoff;
+
+                float _MaskStrength;
             CBUFFER_END
 
-            Varyings vert (Attributes v)
+            Varyings vert(Attributes v)
             {
                 Varyings o = (Varyings)0;
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.secondaryUV = TRANSFORM_TEX(v.uv, _SecondaryTex);
+                o.maskUV = TRANSFORM_TEX(v.uv, _MaskTex);
 
                 #ifdef VERTEX_OFFSET
-                float vertOffset = SAMPLE_TEXTURE2D_LOD(_MainTex, sampler_MainTex, o.uv + _Time.y * _PanningSpeed.xy, 0).x;
+                float vertOffset = SAMPLE_TEXTURE2D_LOD(_MainTex, sampler_MainTex, o.uv + _Time.y * _PanningSpeed.xy, 0)
+                    .x;
                 #ifdef SECONDARY_TEX
-                float secondTex = SAMPLE_TEXTURE2D_LOD(_SecondaryTex, sampler_SecondaryTex, o.secondaryUV + _Time.y * _SecondaryPanningSpeed.xy, 0).x;
+                float secondTex = SAMPLE_TEXTURE2D_LOD(_SecondaryTex, sampler_SecondaryTex,
+                                                       o.secondaryUV + _Time.y * _SecondaryPanningSpeed.xy,
+                                                       0).x;
                 vertOffset = vertOffset * secondTex * 2;
                 #endif
                 vertOffset = ((vertOffset * 2) - 1) * _VertexOffsetAmount;
@@ -190,12 +231,12 @@ Shader "VFX/VFXMasterShaderTransparent"
                 return o;
             }
 
-            half4 frag (Varyings i) : SV_Target
+            half4 frag(Varyings i) : SV_Target
             {
-                // sample the texture
                 float2 uv = i.uv;
                 float2 displUV = i.displUV;
                 float2 secondaryUV = i.secondaryUV;
+                float2 maskUV = i.maskUV;
 
                 //Polar coords
                 #ifdef POLAR
@@ -205,23 +246,31 @@ Shader "VFX/VFXMasterShaderTransparent"
                 displUV = float2(atan2(mappedUV.y, mappedUV.x) / PI / 2.0 + 0.5, length(mappedUV));
                 mappedUV = (i.secondaryUV * 2) - 1;
                 secondaryUV = float2(atan2(mappedUV.y, mappedUV.x) / PI / 2.0 + 0.5, length(mappedUV));
+                mappedUV = (i.maskUV * 2) - 1;
+                maskUV = float2(atan2(mappedUV.y, mappedUV.x) / PI / 2.0 + 0.5, length(mappedUV));
                 #endif
 
                 //UV Panning
                 uv += _Time.y * _PanningSpeed.xy;
                 displUV += _Time.y * _PanningSpeed.zw;
                 secondaryUV += _Time.y * _SecondaryPanningSpeed.xy;
+                maskUV += _Time.y * _MaskPanningSpeed.xy;
 
                 //Displacement
                 float2 displ = SAMPLE_TEXTURE2D(_DisplacementGuide, sampler_DisplacementGuide, displUV).xy;
                 displ = ((displ * 2) - 1) * _DisplacementAmount;
 
-                float col = pow(saturate(lerp(0.5, SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + displ).x, _Contrast)), _Power);
+                //Single main texture sample, reused for color, alpha and ramp coordinate
+                float4 mainTex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + displ);
+
+                float col = pow(saturate(lerp(0.5, mainTex.r, _Contrast)), _Power);
+
                 #ifdef SECONDARY_TEX
-                col = col * pow(saturate(lerp(0.5, SAMPLE_TEXTURE2D(_SecondaryTex, sampler_SecondaryTex, secondaryUV + displ).x, _Contrast)), _Power) * 2;
+                float4 secondTexSample = SAMPLE_TEXTURE2D(_SecondaryTex, sampler_SecondaryTex, secondaryUV + displ);
+                col = col * pow(saturate(lerp(0.5, secondTexSample.r, _Contrast)), _Power) * 2;
                 #endif
 
-                //Masking
+                //Masking (procedural)
                 #ifdef CIRCLE_MASK
                 float circle = distance(i.uv, float2(0.5, 0.5));
                 col *= 1 - smoothstep(_OuterRadius, _OuterRadius + _Smoothness, circle);
@@ -234,9 +283,20 @@ Shader "VFX/VFXMasterShaderTransparent"
                 col *= 1 - smoothstep(_RectMaskCutoff, _RectMaskCutoff + _RectSmoothness, rect);
                 #endif
 
+                //Masking (texture)
+                #ifdef MASK_TEX
+                float maskSample = SAMPLE_TEXTURE2D(_MaskTex, sampler_MaskTex, maskUV).r;
+                #ifdef MASK_INVERT
+                maskSample = 1 - maskSample;
+                #endif
+                maskSample = lerp(1, maskSample, _MaskStrength);
+                col *= maskSample;
+                #endif
+
+                //Value used for alpha cutoff, taken before banding so banding never affects transparency shape
                 float orCol = col;
 
-                //Banding
+                //Banding (now actually feeds the color ramp instead of being discarded)
                 #ifdef BANDING
                 col = round(col * _Bands) / _Bands;
                 #endif
@@ -246,12 +306,17 @@ Shader "VFX/VFXMasterShaderTransparent"
                 float alpha = smoothstep(cutoff, cutoff + _CutoffSoftness, orCol);
 
                 //Coloring
-                half4 rampCol = SAMPLE_TEXTURE2D(_GradientMap, sampler_GradientMap, float2(col, 0)) + _BurnCol * smoothstep(orCol - cutoff, orCol - cutoff + _CutoffSoftness, _BurnSize) * smoothstep(0.001, 0.5, cutoff);
-                half4 finalCol = half4(rampCol.rgb * _Color.rgb * rampCol.a, 1);
+                half4 rampCol = SAMPLE_TEXTURE2D(_GradientMap, sampler_GradientMap, float2(col, 0));
+
+                half4 finalCol = half4(rampCol.rgb * mainTex.rgb * _Color.rgb, 1);
+
+                #ifdef VERTEX_COLOR
+                finalCol.rgb *= i.color.rgb;
+                #endif
 
                 // apply fog
                 finalCol.rgb = MixFog(finalCol.rgb, i.fogCoord);
-                finalCol.a = alpha * SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + displ).a * _Color.a;
+                finalCol.a = alpha * mainTex.a * _Color.a;
 
                 //Soft Blending
                 #ifdef SOFT_BLEND
