@@ -45,6 +45,14 @@ Shader "VFX/VFXMasterShaderTransparent"
         [Space(20)]
         _DisplacementAmount("Displacement", float) = 0
         _DisplacementGuide("DisplacementGuide", 2D) = "white" {}
+        [Toggle(DIRECTIONAL_DISPLACEMENT)]
+        _UseDirectionalDisplacement("Directional displacement (use R channel)", float) = 0
+        _DisplacementDirection("Displacement direction (XY)", Vector) = (1,0,0,0)
+        [Toggle(DISTORTION_FLOW)]
+        _UseDistortionFlow("Animated distortion flow", float) = 0
+        _DistortionFlowAmount("Flow bend amount", Range(0, 0.25)) = 0.02
+        _DistortionFlowFrequency("Flow bend frequency (XY)", Vector) = (4,6,0,0)
+        _DistortionFlowSpeed("Flow bend speed (XY)", Vector) = (1,1.3,0,0)
 
         //Culling
         [Space(20)]
@@ -116,6 +124,8 @@ Shader "VFX/VFXMasterShaderTransparent"
             #pragma multi_compile_fog
             #pragma shader_feature_local SECONDARY_TEX
             #pragma shader_feature_local VERTEX_OFFSET
+            #pragma shader_feature_local DIRECTIONAL_DISPLACEMENT
+            #pragma shader_feature_local DISTORTION_FLOW
             #pragma shader_feature_local SOFT_BLEND
             #pragma shader_feature_local BANDING
             #pragma shader_feature_local POLAR
@@ -189,6 +199,10 @@ Shader "VFX/VFXMasterShaderTransparent"
                 float _VertexOffsetAmount;
 
                 float _DisplacementAmount;
+                float4 _DisplacementDirection;
+                float _DistortionFlowAmount;
+                float4 _DistortionFlowFrequency;
+                float4 _DistortionFlowSpeed;
 
                 float _Smoothness;
                 float _OuterRadius;
@@ -257,8 +271,28 @@ Shader "VFX/VFXMasterShaderTransparent"
                 maskUV += _Time.y * _MaskPanningSpeed.xy;
 
                 //Displacement
-                float2 displ = SAMPLE_TEXTURE2D(_DisplacementGuide, sampler_DisplacementGuide, displUV).xy;
-                displ = ((displ * 2) - 1) * _DisplacementAmount;
+                #ifdef DISTORTION_FLOW
+                //Cross-axis waves continuously reshape the guide UV instead of merely scrolling it.
+                //Using separate frequency/speed values keeps the motion from looking repetitive.
+                float2 flowOffset;
+                flowOffset.x = sin(displUV.y * _DistortionFlowFrequency.x * TWO_PI
+                                   + _Time.y * _DistortionFlowSpeed.x);
+                flowOffset.y = sin(displUV.x * _DistortionFlowFrequency.y * TWO_PI
+                                   + _Time.y * _DistortionFlowSpeed.y);
+                displUV += flowOffset * _DistortionFlowAmount;
+                #endif
+
+                float4 displacementGuide = SAMPLE_TEXTURE2D(_DisplacementGuide, sampler_DisplacementGuide, displUV);
+
+                #ifdef DIRECTIONAL_DISPLACEMENT
+                //A single grayscale channel can be aimed in any UV direction.
+                float2 displacementDirection = _DisplacementDirection.xy;
+                displacementDirection *= rsqrt(max(dot(displacementDirection, displacementDirection), 0.00001));
+                float2 displ = ((displacementGuide.r * 2) - 1) * displacementDirection * _DisplacementAmount;
+                #else
+                //Legacy mode: R offsets U and G offsets V.
+                float2 displ = ((displacementGuide.xy * 2) - 1) * _DisplacementAmount;
+                #endif
 
                 //Single main texture sample, reused for color, alpha and ramp coordinate
                 float4 mainTex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv + displ);
