@@ -95,6 +95,26 @@ Shader "VFX/VFXMasterShaderTransparent"
         [Toggle(MASK_INVERT)]
         _MaskInvert("Invert mask", float) = 0
         _MaskStrength("Mask strength", Range(0,1)) = 1
+
+        //Second mask texture
+        [Space(20)]
+        [Toggle(MASK_TEX_2)]
+        _UseMaskTex2("Use mask texture 2", float) = 0
+        _MaskTex2("Mask texture 2 (R channel)", 2D) = "white" {}
+        _MaskPanningSpeed2("Mask 2 panning speed", Vector) = (0,0,0,0)
+        [Toggle(MASK_INVERT_2)]
+        _MaskInvert2("Invert mask 2", float) = 0
+        _MaskStrength2("Mask 2 strength", Range(0,1)) = 1
+
+        //Third mask texture
+        [Space(20)]
+        [Toggle(MASK_TEX_3)]
+        _UseMaskTex3("Use mask texture 3", float) = 0
+        _MaskTex3("Mask texture 3 (R channel)", 2D) = "white" {}
+        _MaskPanningSpeed3("Mask 3 panning speed", Vector) = (0,0,0,0)
+        [Toggle(MASK_INVERT_3)]
+        _MaskInvert3("Invert mask 3", float) = 0
+        _MaskStrength3("Mask 3 strength", Range(0,1)) = 1
     }
     SubShader
     {
@@ -133,6 +153,10 @@ Shader "VFX/VFXMasterShaderTransparent"
             #pragma shader_feature_local RECT_MASK
             #pragma shader_feature_local MASK_TEX
             #pragma shader_feature_local MASK_INVERT
+            #pragma shader_feature_local MASK_TEX_2
+            #pragma shader_feature_local MASK_INVERT_2
+            #pragma shader_feature_local MASK_TEX_3
+            #pragma shader_feature_local MASK_INVERT_3
             #pragma multi_compile_fog
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -157,6 +181,8 @@ Shader "VFX/VFXMasterShaderTransparent"
                 float4 scrPos : TEXCOORD3;
                 float fogCoord : TEXCOORD4;
                 float2 maskUV : TEXCOORD5;
+                float2 maskUV2 : TEXCOORD6;
+                float2 maskUV3 : TEXCOORD7;
                 float4 positionCS : SV_POSITION;
                 float4 color : COLOR;
             };
@@ -171,12 +197,18 @@ Shader "VFX/VFXMasterShaderTransparent"
             SAMPLER(sampler_DisplacementGuide);
             TEXTURE2D(_MaskTex);
             SAMPLER(sampler_MaskTex);
+            TEXTURE2D(_MaskTex2);
+            SAMPLER(sampler_MaskTex2);
+            TEXTURE2D(_MaskTex3);
+            SAMPLER(sampler_MaskTex3);
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _MainTex_ST;
                 float4 _SecondaryTex_ST;
                 float4 _DisplacementGuide_ST;
                 float4 _MaskTex_ST;
+                float4 _MaskTex2_ST;
+                float4 _MaskTex3_ST;
 
                 float4 _Color;
                 float4 _BurnCol;
@@ -189,6 +221,8 @@ Shader "VFX/VFXMasterShaderTransparent"
                 float4 _PanningSpeed;
                 float4 _SecondaryPanningSpeed;
                 float4 _MaskPanningSpeed;
+                float4 _MaskPanningSpeed2;
+                float4 _MaskPanningSpeed3;
 
                 float _Cutoff;
                 float _CutoffSoftness;
@@ -214,6 +248,8 @@ Shader "VFX/VFXMasterShaderTransparent"
                 float _RectMaskCutoff;
 
                 float _MaskStrength;
+                float _MaskStrength2;
+                float _MaskStrength3;
             CBUFFER_END
 
             Varyings vert(Attributes v)
@@ -222,6 +258,8 @@ Shader "VFX/VFXMasterShaderTransparent"
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 o.secondaryUV = TRANSFORM_TEX(v.uv, _SecondaryTex);
                 o.maskUV = TRANSFORM_TEX(v.uv, _MaskTex);
+                o.maskUV2 = TRANSFORM_TEX(v.uv, _MaskTex2);
+                o.maskUV3 = TRANSFORM_TEX(v.uv, _MaskTex3);
 
                 #ifdef VERTEX_OFFSET
                 float vertOffset = SAMPLE_TEXTURE2D_LOD(_MainTex, sampler_MainTex, o.uv + _Time.y * _PanningSpeed.xy, 0)
@@ -251,6 +289,8 @@ Shader "VFX/VFXMasterShaderTransparent"
                 float2 displUV = i.displUV;
                 float2 secondaryUV = i.secondaryUV;
                 float2 maskUV = i.maskUV;
+                float2 maskUV2 = i.maskUV2;
+                float2 maskUV3 = i.maskUV3;
 
                 //Polar coords
                 #ifdef POLAR
@@ -262,6 +302,10 @@ Shader "VFX/VFXMasterShaderTransparent"
                 secondaryUV = float2(atan2(mappedUV.y, mappedUV.x) / PI / 2.0 + 0.5, length(mappedUV));
                 mappedUV = (i.maskUV * 2) - 1;
                 maskUV = float2(atan2(mappedUV.y, mappedUV.x) / PI / 2.0 + 0.5, length(mappedUV));
+                mappedUV = (i.maskUV2 * 2) - 1;
+                maskUV2 = float2(atan2(mappedUV.y, mappedUV.x) / PI / 2.0 + 0.5, length(mappedUV));
+                mappedUV = (i.maskUV3 * 2) - 1;
+                maskUV3 = float2(atan2(mappedUV.y, mappedUV.x) / PI / 2.0 + 0.5, length(mappedUV));
                 #endif
 
                 //UV Panning
@@ -269,6 +313,8 @@ Shader "VFX/VFXMasterShaderTransparent"
                 displUV += _Time.y * _PanningSpeed.zw;
                 secondaryUV += _Time.y * _SecondaryPanningSpeed.xy;
                 maskUV += _Time.y * _MaskPanningSpeed.xy;
+                maskUV2 += _Time.y * _MaskPanningSpeed2.xy;
+                maskUV3 += _Time.y * _MaskPanningSpeed3.xy;
 
                 //Displacement
                 #ifdef DISTORTION_FLOW
@@ -325,6 +371,24 @@ Shader "VFX/VFXMasterShaderTransparent"
                 #endif
                 maskSample = lerp(1, maskSample, _MaskStrength);
                 col *= maskSample;
+                #endif
+
+                #ifdef MASK_TEX_2
+                float maskSample2 = SAMPLE_TEXTURE2D(_MaskTex2, sampler_MaskTex2, maskUV2).r;
+                #ifdef MASK_INVERT_2
+                maskSample2 = 1 - maskSample2;
+                #endif
+                maskSample2 = lerp(1, maskSample2, _MaskStrength2);
+                col *= maskSample2;
+                #endif
+
+                #ifdef MASK_TEX_3
+                float maskSample3 = SAMPLE_TEXTURE2D(_MaskTex3, sampler_MaskTex3, maskUV3).r;
+                #ifdef MASK_INVERT_3
+                maskSample3 = 1 - maskSample3;
+                #endif
+                maskSample3 = lerp(1, maskSample3, _MaskStrength3);
+                col *= maskSample3;
                 #endif
 
                 //Value used for alpha cutoff, taken before banding so banding never affects transparency shape
