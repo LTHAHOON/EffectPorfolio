@@ -81,6 +81,14 @@ Material:
         m_Texture: {fileID: 2800000, guid: 7bb6398d9a8fc5c47bbbe5912ec6a0eb, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _MaskTex2:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskTex3:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -142,6 +150,7 @@ Material:
     - _DisplacementAmount: 0.25
     - _DistortionBlend: 0.5
     - _DistortionEnabled: 0
+    - _DistortionFlowAmount: 0.02
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 10
@@ -155,7 +164,11 @@ Material:
     - _InnerRadius: 0
     - _IntersectionThresholdMax: 3.03
     - _MaskInvert: 0
+    - _MaskInvert2: 0
+    - _MaskInvert3: 0
     - _MaskStrength: 1
+    - _MaskStrength2: 1
+    - _MaskStrength3: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
@@ -181,7 +194,11 @@ Material:
     - _SrcBlend: 5
     - _SrcBlendAlpha: 1
     - _Surface: 1
+    - _UseDirectionalDisplacement: 0
+    - _UseDistortionFlow: 0
     - _UseMaskTex: 1
+    - _UseMaskTex2: 0
+    - _UseMaskTex3: 0
     - _UseVertexColor: 0
     - _VertexOffset: 0
     - _VertexOffsetAmount: 0
@@ -193,9 +210,14 @@ Material:
     - _BaseColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
     - _BurnCol: {r: 1, g: 1, b: 1, a: 1}
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 0.48498017, g: 4.3566046, b: 1.0118876, a: 1}
+    - _Color: {r: 2.6018584, g: 5.992159, b: 4.231305, a: 1}
+    - _DisplacementDirection: {r: 1, g: 0, b: 0, a: 0}
+    - _DistortionFlowFrequency: {r: 4, g: 6, b: 0, a: 0}
+    - _DistortionFlowSpeed: {r: 1, g: 1.3, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _MaskPanningSpeed: {r: 0, g: 0, b: 0, a: 0}
+    - _MaskPanningSpeed2: {r: 0, g: 0, b: 0, a: 0}
+    - _MaskPanningSpeed3: {r: 0, g: 0, b: 0, a: 0}
     - _PanningSpeed: {r: 0, g: 0, b: 0, a: 0}
     - _SecondaryPanningSpeed: {r: 0, g: 0, b: 0, a: 0}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}

@@ -20,6 +20,25 @@ namespace EffectPortfolio.CrackProgress.Editor
         private static readonly BindingFlags AnyInstance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
         private static readonly BindingFlags AnyStatic = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
+        [InitializeOnLoadMethod]
+        private static void SchedulePendingSoftWidthUpgrade()
+        {
+            EditorApplication.delayCall += () =>
+            {
+                if (!File.Exists(GraphPath) || File.ReadAllText(GraphPath).Contains("_BorderSoftness"))
+                    return;
+
+                try
+                {
+                    UpgradeSoftWidth();
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            };
+        }
+
         [MenuItem("Tools/Effect Portfolio/Generate Branching Crack Shader Graph")]
         public static void Generate()
         {
@@ -74,6 +93,8 @@ namespace EffectPortfolio.CrackProgress.Editor
                 "_CrackProgressMask");
             object progressProperty = CreateFloatProperty(graph, "Progress", "_Progress", 0f, 0f, 1f);
             object softnessProperty = CreateFloatProperty(graph, "Edge Softness", "_EdgeSoftness", 0.035f, 0.001f, 0.25f);
+            object crackSizeProperty = CreateFloatProperty(graph, "Crack Size", "_Crack_Size", 1f, 0f, 1f);
+            object borderSoftnessProperty = CreateFloatProperty(graph, "Border Softness", "_BorderSoftness", 0.03f, 0f, 0.25f);
             object colorProperty = CreateProperty(
                 graph,
                 "UnityEditor.ShaderGraph.Internal.ColorShaderProperty",
@@ -81,18 +102,64 @@ namespace EffectPortfolio.CrackProgress.Editor
                 "_CrackColor");
             Set(colorProperty, "value", new Color(1f, 0.12f, 0.015f, 1f));
             object emissionProperty = CreateFloatProperty(graph, "Emission", "_Emission", 7f, 0f, 20f);
+            object normalTextureProperty = CreateProperty(
+                graph,
+                "UnityEditor.ShaderGraph.Internal.Texture2DShaderProperty",
+                "Normal Texture",
+                "_Normal_Tex");
+            object normalStrengthProperty = CreateFloatProperty(graph, "Normal Strength", "_NormalStrength", 1f, 0f, 2f);
+            object fakeLightDirectionProperty = CreateVector3Property(
+                graph,
+                "Fake Light Direction (Tangent)",
+                "_FakeLightDirection",
+                new Vector3(-0.35f, 0.45f, 0.82f));
+            object shadowBrightnessProperty = CreateFloatProperty(
+                graph,
+                "Shadow Brightness",
+                "_ShadowBrightness",
+                0.35f,
+                0f,
+                1f);
+            object fakeLightIntensityProperty = CreateFloatProperty(
+                graph,
+                "Fake Light Intensity",
+                "_FakeLightIntensity",
+                1.15f,
+                0f,
+                2f);
 
             object maskNode = CreatePropertyNode(graph, maskProperty, new Rect(-1050, -20, 180, 34));
             object progressNode = CreatePropertyNode(graph, progressProperty, new Rect(-780, 360, 160, 34));
             object softnessNode = CreatePropertyNode(graph, softnessProperty, new Rect(-1030, 220, 160, 34));
+            object crackSizeNode = CreatePropertyNode(graph, crackSizeProperty, new Rect(-1030, 480, 160, 34));
+            object borderSoftnessNode = CreatePropertyNode(graph, borderSoftnessProperty, new Rect(-1030, 560, 160, 34));
             object colorNode = CreatePropertyNode(graph, colorProperty, new Rect(-510, -260, 160, 34));
             object emissionNode = CreatePropertyNode(graph, emissionProperty, new Rect(-510, -150, 160, 34));
+            object normalTextureNode = CreatePropertyNode(graph, normalTextureProperty, new Rect(-1040, -520, 180, 34));
+            object normalStrengthNode = CreatePropertyNode(graph, normalStrengthProperty, new Rect(-790, -650, 170, 34));
+            object fakeLightDirectionNode = CreatePropertyNode(graph, fakeLightDirectionProperty, new Rect(-790, -760, 210, 34));
+            object shadowBrightnessNode = CreatePropertyNode(graph, shadowBrightnessProperty, new Rect(-270, -610, 180, 34));
+            object fakeLightIntensityNode = CreatePropertyNode(graph, fakeLightIntensityProperty, new Rect(0, -520, 180, 34));
 
             object sampleNode = CreateNode(graph, "UnityEditor.ShaderGraph.SampleTexture2DNode", new Rect(-790, -40, 210, 270));
             object subtractNode = CreateNode(graph, "UnityEditor.ShaderGraph.SubtractNode", new Rect(-510, 120, 190, 120));
             object smoothstepNode = CreateNode(graph, "UnityEditor.ShaderGraph.SmoothstepNode", new Rect(-250, 100, 190, 150));
+            object oneMinusSizeNode = CreateNode(graph, "UnityEditor.ShaderGraph.OneMinusNode", new Rect(-790, 470, 150, 100));
+            object borderMaxNode = CreateNode(graph, "UnityEditor.ShaderGraph.AddNode", new Rect(-570, 560, 170, 110));
+            object widthSmoothstepNode = CreateNode(graph, "UnityEditor.ShaderGraph.SmoothstepNode", new Rect(-310, 430, 190, 150));
             object alphaMultiplyNode = CreateNode(graph, "UnityEditor.ShaderGraph.MultiplyNode", new Rect(20, 40, 190, 120));
             object colorMultiplyNode = CreateNode(graph, "UnityEditor.ShaderGraph.MultiplyNode", new Rect(-220, -250, 190, 120));
+            object normalSampleNode = CreateNode(graph, "UnityEditor.ShaderGraph.SampleTexture2DNode", new Rect(-790, -510, 210, 270));
+            SetEnum(normalSampleNode, "textureType", "Normal");
+            object applyNormalStrengthNode = CreateNode(graph, "UnityEditor.ShaderGraph.NormalStrengthNode", new Rect(-520, -510, 190, 130));
+            object normalizeNormalNode = CreateNode(graph, "UnityEditor.ShaderGraph.NormalizeNode", new Rect(-290, -450, 170, 100));
+            object normalizeLightNode = CreateNode(graph, "UnityEditor.ShaderGraph.NormalizeNode", new Rect(-520, -750, 170, 100));
+            object dotLightNode = CreateNode(graph, "UnityEditor.ShaderGraph.DotProductNode", new Rect(-50, -720, 180, 120));
+            object saturateLightNode = CreateNode(graph, "UnityEditor.ShaderGraph.SaturateNode", new Rect(170, -700, 160, 100));
+            object oneNode = CreateFloatNode(graph, 1f, new Rect(-40, -590, 120, 80));
+            object lightRangeNode = CreateNode(graph, "UnityEditor.ShaderGraph.LerpNode", new Rect(390, -650, 180, 140));
+            object lightIntensityMultiplyNode = CreateNode(graph, "UnityEditor.ShaderGraph.MultiplyNode", new Rect(620, -560, 180, 120));
+            object shadedColorMultiplyNode = CreateNode(graph, "UnityEditor.ShaderGraph.MultiplyNode", new Rect(860, -300, 190, 120));
 
             Connect(graph, maskNode, 0, sampleNode, 1);
             Connect(graph, sampleNode, 5, subtractNode, 0);
@@ -100,14 +167,35 @@ namespace EffectPortfolio.CrackProgress.Editor
             Connect(graph, subtractNode, 2, smoothstepNode, 0);
             Connect(graph, sampleNode, 5, smoothstepNode, 1);
             Connect(graph, progressNode, 0, smoothstepNode, 2);
-            Connect(graph, sampleNode, 4, alphaMultiplyNode, 0);
+            Connect(graph, crackSizeNode, 0, oneMinusSizeNode, 0);
+            Connect(graph, oneMinusSizeNode, 1, borderMaxNode, 0);
+            Connect(graph, borderSoftnessNode, 0, borderMaxNode, 1);
+            Connect(graph, oneMinusSizeNode, 1, widthSmoothstepNode, 0);
+            Connect(graph, borderMaxNode, 2, widthSmoothstepNode, 1);
+            Connect(graph, sampleNode, 4, widthSmoothstepNode, 2);
+            Connect(graph, widthSmoothstepNode, 3, alphaMultiplyNode, 0);
             Connect(graph, smoothstepNode, 3, alphaMultiplyNode, 1);
             Connect(graph, colorNode, 0, colorMultiplyNode, 0);
             Connect(graph, emissionNode, 0, colorMultiplyNode, 1);
+            Connect(graph, normalTextureNode, 0, normalSampleNode, 1);
+            Connect(graph, normalSampleNode, 0, applyNormalStrengthNode, 0);
+            Connect(graph, normalStrengthNode, 0, applyNormalStrengthNode, 1);
+            Connect(graph, applyNormalStrengthNode, 2, normalizeNormalNode, 0);
+            Connect(graph, fakeLightDirectionNode, 0, normalizeLightNode, 0);
+            Connect(graph, normalizeNormalNode, 1, dotLightNode, 0);
+            Connect(graph, normalizeLightNode, 1, dotLightNode, 1);
+            Connect(graph, dotLightNode, 2, saturateLightNode, 0);
+            Connect(graph, shadowBrightnessNode, 0, lightRangeNode, 0);
+            Connect(graph, oneNode, 0, lightRangeNode, 1);
+            Connect(graph, saturateLightNode, 1, lightRangeNode, 2);
+            Connect(graph, lightRangeNode, 3, lightIntensityMultiplyNode, 0);
+            Connect(graph, fakeLightIntensityNode, 0, lightIntensityMultiplyNode, 1);
+            Connect(graph, colorMultiplyNode, 2, shadedColorMultiplyNode, 0);
+            Connect(graph, lightIntensityMultiplyNode, 2, shadedColorMultiplyNode, 1);
 
             object baseColorBlock = FindBlock(graph, "SurfaceDescription.BaseColor");
             object alphaBlock = FindBlock(graph, "SurfaceDescription.Alpha");
-            Connect(graph, colorMultiplyNode, 2, baseColorBlock, 0);
+            Connect(graph, shadedColorMultiplyNode, 2, baseColorBlock, 0);
             Connect(graph, alphaMultiplyNode, 2, alphaBlock, 0);
 
             Invoke(graph, "ValidateGraph");
@@ -141,6 +229,31 @@ namespace EffectPortfolio.CrackProgress.Editor
             Set(property, "rangeValues", new Vector2(min, max));
             Set(property, "value", value);
             return property;
+        }
+
+        private static object CreateVector3Property(
+            object graph,
+            string displayName,
+            string referenceName,
+            Vector3 value)
+        {
+            object property = CreateProperty(
+                graph,
+                "UnityEditor.ShaderGraph.Internal.Vector3ShaderProperty",
+                displayName,
+                referenceName);
+            Set(property, "value", new Vector4(value.x, value.y, value.z, 0f));
+            return property;
+        }
+
+        private static object CreateFloatNode(object graph, float value, Rect rect)
+        {
+            object node = Create(FindType("UnityEditor.ShaderGraph.Vector1Node"));
+            Set(node, "m_Value", value);
+            Invoke(node, "UpdateNodeAfterDeserialization");
+            SetDrawState(node, rect);
+            Invoke(graph, "AddNode", node);
+            return node;
         }
 
         private static object CreatePropertyNode(object graph, object property, Rect rect)
@@ -290,9 +403,118 @@ namespace EffectPortfolio.CrackProgress.Editor
             material.SetTexture("_CrackProgressMask", AssetDatabase.LoadAssetAtPath<Texture2D>(TexturePath));
             material.SetFloat("_Progress", 0.45f);
             material.SetFloat("_EdgeSoftness", 0.035f);
+            material.SetFloat("_Crack_Size", 1f);
+            material.SetFloat("_BorderSoftness", 0.03f);
             material.SetColor("_CrackColor", new Color(1f, 0.12f, 0.015f, 1f));
             material.SetFloat("_Emission", 7f);
+            material.SetFloat("_NormalStrength", 1f);
+            material.SetVector("_FakeLightDirection", new Vector4(-0.35f, 0.45f, 0.82f, 0f));
+            material.SetFloat("_ShadowBrightness", 0.35f);
+            material.SetFloat("_FakeLightIntensity", 1.15f);
             EditorUtility.SetDirty(material);
+        }
+
+        [MenuItem("Tools/Effect Portfolio/Upgrade Crack Shader To Soft Width")]
+        public static void UpgradeSoftWidth()
+        {
+            Type fileUtilitiesType = FindType("UnityEditor.ShaderGraph.FileUtilities");
+            MethodInfo reader = fileUtilitiesType.GetMethod("TryReadGraphDataFromDisk", AnyStatic);
+            if (reader == null)
+                throw new MissingMethodException(fileUtilitiesType.FullName, "TryReadGraphDataFromDisk");
+
+            object[] readArguments = { GraphPath, null };
+            if (!(bool)reader.Invoke(null, readArguments) || readArguments[1] == null)
+                throw new InvalidOperationException($"Could not read Shader Graph: {GraphPath}");
+
+            object graph = readArguments[1];
+            foreach (object property in (IEnumerable)Get(graph, "properties"))
+            {
+                if ((string)Get(property, "displayName") == "Border Softness")
+                {
+                    Debug.Log("[CrackProgress] Soft width upgrade is already installed.");
+                    return;
+                }
+            }
+
+            object oneMinusNode = GetNodes(graph)
+                .FirstOrDefault(node => node.GetType().FullName == "UnityEditor.ShaderGraph.OneMinusNode");
+            if (oneMinusNode == null)
+                throw new InvalidOperationException("Could not find the Crack Size One Minus node.");
+
+            object widthSmoothstepNode = null;
+            foreach (object edge in (IEnumerable)Invoke(graph, "GetEdges", oneMinusNode))
+            {
+                object outputSlot = Get(edge, "outputSlot");
+                object inputSlot = Get(edge, "inputSlot");
+                if (!ReferenceEquals(Get(outputSlot, "node"), oneMinusNode))
+                    continue;
+
+                object candidate = Get(inputSlot, "node");
+                if (candidate.GetType().FullName == "UnityEditor.ShaderGraph.SmoothstepNode")
+                {
+                    widthSmoothstepNode = candidate;
+                    break;
+                }
+            }
+
+            if (widthSmoothstepNode == null)
+                throw new InvalidOperationException("Could not find the Smoothstep driven by Crack Size.");
+
+            object borderSoftnessProperty = CreateFloatProperty(
+                graph,
+                "Border Softness",
+                "_BorderSoftness",
+                0.03f,
+                0f,
+                0.25f);
+            object borderSoftnessNode = CreatePropertyNode(graph, borderSoftnessProperty, new Rect(-1445, 110, 180, 34));
+            object borderMaxNode = CreateNode(graph, "UnityEditor.ShaderGraph.AddNode", new Rect(-1190, 125, 170, 110));
+
+            Connect(graph, oneMinusNode, 1, borderMaxNode, 0);
+            Connect(graph, borderSoftnessNode, 0, borderMaxNode, 1);
+            Connect(graph, oneMinusNode, 1, widthSmoothstepNode, 0);
+            Connect(graph, borderMaxNode, 2, widthSmoothstepNode, 1);
+
+            Invoke(graph, "ValidateGraph");
+            MethodInfo writer = fileUtilitiesType.GetMethod("WriteShaderGraphToDisk", AnyStatic);
+            if (writer == null)
+                throw new MissingMethodException(fileUtilitiesType.FullName, "WriteShaderGraphToDisk");
+            writer.Invoke(null, new[] { GraphPath, graph });
+            AssetDatabase.ImportAsset(GraphPath, ImportAssetOptions.ForceSynchronousImport | ImportAssetOptions.ForceUpdate);
+
+            DisableAlphaClipOnCrackMaterials();
+            AssetDatabase.SaveAssets();
+            Debug.Log("[CrackProgress] Added soft width controls and disabled hard alpha clipping.");
+        }
+
+        private static IEnumerable<object> GetNodes(object graph)
+        {
+            Type nodeType = FindType("UnityEditor.ShaderGraph.AbstractMaterialNode");
+            MethodInfo getNodes = graph.GetType().GetMethods(AnyInstance)
+                .First(method => method.Name == "GetNodes" && method.IsGenericMethodDefinition && method.GetParameters().Length == 0)
+                .MakeGenericMethod(nodeType);
+            return ((IEnumerable)getNodes.Invoke(graph, null)).Cast<object>();
+        }
+
+        private static void DisableAlphaClipOnCrackMaterials()
+        {
+            Shader crackShader = AssetDatabase.LoadAssetAtPath<Shader>(GraphPath);
+            if (crackShader == null)
+                return;
+
+            foreach (string guid in AssetDatabase.FindAssets("t:Material", new[] { "Assets/FX" }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                Material material = AssetDatabase.LoadAssetAtPath<Material>(path);
+                if (material == null || material.shader != crackShader)
+                    continue;
+
+                material.SetFloat("_AlphaClip", 0f);
+                material.DisableKeyword("_ALPHATEST_ON");
+                if (material.HasProperty("_BorderSoftness"))
+                    material.SetFloat("_BorderSoftness", 0.03f);
+                EditorUtility.SetDirty(material);
+            }
         }
 
         private static CrackSegment S(float ax, float ay, float bx, float by, float start, float end, float width)

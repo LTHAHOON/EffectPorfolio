@@ -81,6 +81,14 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _MaskTex2:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskTex3:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -145,7 +153,11 @@ Material:
     - _InnerRadius: 0
     - _IntersectionThresholdMax: 1
     - _MaskInvert: 0
+    - _MaskInvert2: 0
+    - _MaskInvert3: 0
     - _MaskStrength: 1
+    - _MaskStrength2: 1
+    - _MaskStrength3: 1
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _OuterRadius: 0.5
@@ -170,6 +182,8 @@ Material:
     - _UseDirectionalDisplacement: 1
     - _UseDistortionFlow: 1
     - _UseMaskTex: 0
+    - _UseMaskTex2: 0
+    - _UseMaskTex3: 0
     - _UseVertexColor: 1
     - _VertexOffset: 1
     - _VertexOffsetAmount: -0.2
@@ -179,12 +193,14 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BurnCol: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0.61052066, g: 11.984314, b: 4.001466, a: 1}
+    - _Color: {r: 14.7183275, g: 33.896755, b: 23.935867, a: 1}
     - _DisplacementDirection: {r: -0.2, g: 0.14, b: 0, a: 0}
     - _DistortionFlowFrequency: {r: -2.5, g: 5, b: 0, a: 0}
     - _DistortionFlowSpeed: {r: 0, g: 5, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _MaskPanningSpeed: {r: 0, g: 0, b: 0, a: 0}
+    - _MaskPanningSpeed2: {r: 0, g: 0, b: 0, a: 0}
+    - _MaskPanningSpeed3: {r: 0, g: 0, b: 0, a: 0}
     - _PanningSpeed: {r: 0, g: 0, b: 0, a: 0}
     - _SecondaryPanningSpeed: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

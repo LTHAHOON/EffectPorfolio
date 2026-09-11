@@ -1,0 +1,36 @@
+{
+  "source": "C:\\Users\\82108\\Desktop\\EffectPorfolio\\Assets\\FX\\FX_Aknal\\FX\\Mesh\\T_Aknal_Rock_01",
+  "resolution": [
+    2048,
+    2048
+  ],
+  "color_policy": "No recoloring, grading, shifting, wrapping, or edge extension. Every map is a byte-identical copy of the clean source bake.",
+  "edge_policy": "Original UV dilation padding is preserved exactly so it cannot be sampled as stretched surface detail.",
+  "alignment_policy": "The same offset is applied to every PBR map in a set.",
+  "variants": [
+    {
+      "id": 2,
+      "offset": [
+        0,
+        0
+      ],
+      "label": "large-noise pointed"
+    },
+    {
+      "id": 3,
+      "offset": [
+        0,
+        0
+      ],
+      "label": "fine-noise pointed"
+    },
+    {
+      "id": 4,
+      "offset": [
+        0,
+        0
+      ],
+      "label": "mixed-noise pointed"
+    }
+  ]
+}

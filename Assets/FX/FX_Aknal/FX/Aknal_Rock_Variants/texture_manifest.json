@@ -1,0 +1,25 @@
+{
+  "source": "C:\\Users\\82108\\Desktop\\Aknal\\T_Aknal_Rock_01",
+  "texture_resolution": [
+    2048,
+    2048
+  ],
+  "variants": [
+    {
+      "id": 2,
+      "name": "Ember Moss",
+      "seed": 2207
+    },
+    {
+      "id": 3,
+      "name": "Cold Verdigris",
+      "seed": 3419
+    },
+    {
+      "id": 4,
+      "name": "Violet Ash",
+      "seed": 4831
+    }
+  ],
+  "notes": "Original UV-space padding and all geometry-correlated maps are preserved. Base color and roughness are varied without moving UV content."
+}
