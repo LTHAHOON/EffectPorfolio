@@ -1,0 +1,17 @@
+# File produced by Open Asset Import Library (http://www.assimp.sf.net)
+# (assimp v4.1.0)
+
+newmtl Aknal_Rock_01
+Kd 1 1 1
+Ks 0.2000000029802322 0.2000000029802322 0.2000000029802322
+Ns 32
+illum 2
+map_Kd Aknal_Rock_01_Base_color.png
+
+newmtl Cystal_01_Green
+Kd 0.03999999910593033 1 0.1800000071525574
+Ks 0.2000000029802322 0.2000000029802322 0.2000000029802322
+Ns 32
+illum 2
+map_Kd Cystal_01_Base_color.png
+

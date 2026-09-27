@@ -1,0 +1,7 @@
+newmtl Crystal
+Kd 0.05 0.5 0.3
+map_Kd crystal_BaseColor.png
+
+newmtl Rock
+Kd 0.12 0.28 0.22
+map_Kd rock_BaseColor.png
