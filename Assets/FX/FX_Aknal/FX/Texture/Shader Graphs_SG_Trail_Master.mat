@@ -17,13 +17,12 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: 3001
   stringTagMap:
     RenderType: Transparent
   disabledShaderPasses:
   - MOTIONVECTORS
   - SHADOWCASTER
-  - DepthOnly
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -74,15 +73,15 @@ Material:
     - _Inner_Intensity: 2
     - _Outline_Tex_Power: 1
     - _QueueControl: 0
-    - _QueueOffset: 0
+    - _QueueOffset: 1
     - _SrcBlend: 5
     - _SrcBlendAlpha: 1
     - _Stroke_Thickness: 0.1
     - _Surface: 1
     - _Tail_Mask_Power: 1.24
     - _ZTest: 4
-    - _ZWrite: 0
-    - _ZWriteControl: 0
+    - _ZWrite: 1
+    - _ZWriteControl: 1
     m_Colors:
     - _Dissolve_Tex_Offset_Speed: {r: -0.5, g: 0, b: 0, a: 0}
     - _Inner_Background_Color: {r: 0.0068160985, g: 0.041234624, b: 0, a: 1}

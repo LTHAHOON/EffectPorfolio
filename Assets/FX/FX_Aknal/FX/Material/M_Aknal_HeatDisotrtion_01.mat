@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-7203322633614108018
+--- !u!114 &-4631889349248402740
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_Magic_LineOffset_02
-  m_Shader: {fileID: -6465566751694194690, guid: 7e6064df25484d643bac6f6e05912815, type: 3}
+  m_Name: M_Aknal_HeatDisotrtion_01
+  m_Shader: {fileID: -6465566751694194690, guid: 05dd8db44a18e5b419f5d86c058389e7, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
@@ -30,17 +30,21 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3001
+  m_CustomRenderQueue: 3000
   stringTagMap:
     RenderType: Transparent
   disabledShaderPasses:
-  - SHADOWCASTER
   - MOTIONVECTORS
+  - SHADOWCASTER
   - DepthOnly
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _Mask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -55,40 +59,29 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Alpha: 1
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _Alpha_Rotation: 0
-    - _Blend: 2
+    - _Blend: 0
     - _CastShadows: 0
-    - _Cull: 0
-    - _DstBlend: 1
-    - _DstBlendAlpha: 1
-    - _Float: 0.25
-    - _Float_1: 0
-    - _Noise_Rotation_Speed: 0
-    - _Noise_Scale: 20
-    - _Noise_Step: 0.46
+    - _Cull: 2
+    - _DstBlend: 10
+    - _DstBlendAlpha: 10
+    - _Fresnel_Power: 1
+    - _HeatDIstortion: 0
     - _QueueControl: 0
-    - _QueueOffset: 1
-    - _Rotation: 1
-    - _Rotation_Speed: 0.2
-    - _Split_Value: 3.75
+    - _QueueOffset: 0
+    - _Ripple: 1
+    - _RippleContrast: 1
+    - _RippleCount: 0.5
+    - _RippleSpeed: 1.5
     - _SrcBlend: 5
     - _SrcBlendAlpha: 1
     - _Surface: 1
-    - _Vertex_Rotation_Speed: 0
     - _ZTest: 4
     - _ZWrite: 0
     - _ZWriteControl: 0
     m_Colors:
-    - _Color: {r: 0.46107566, g: 0.46107566, b: 0.46107566, a: 1}
-    - _Noise_Color: {r: 0, g: 5.9921565, b: 0.84705865, a: 1}
-    - _Noise_Speed: {r: 0.2, g: -0.3, b: 0, a: 0}
-    - _Noise_Tiling: {r: 1, g: 1, b: 0, a: 0}
-    - _Rotation_Pivot: {r: 0.5, g: 0.5, b: 0, a: 0}
-    - _Vector2: {r: 0, g: 0, b: 0, a: 0}
-    - _Vector2_1: {r: 0, g: 0, b: 0, a: 0}
-    - _Vector3: {r: 0, g: 0, b: 0, a: 0}
+    - _DistortionSpeed: {r: 0, g: 0, b: 0, a: 0}
+    - _RippleCenter: {r: 0, g: 2.55, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
