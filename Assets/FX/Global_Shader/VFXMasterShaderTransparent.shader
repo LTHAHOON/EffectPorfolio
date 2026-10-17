@@ -64,6 +64,14 @@ Shader "VFX/VFXMasterShaderTransparent"
         _Banding("Color banding", float) = 0
         _Bands("Number of bands", float) = 3
 
+        //Twirl
+        [Space(20)]
+        [Toggle(TWIRL)]
+        _UseTwirl("Twirl", float) = 0
+        _TwirlStrength("Twirl strength", float) = 5
+        _TwirlCenter("Twirl center (XY)", Vector) = (0.5,0.5,0,0)
+        _TwirlSpeed("Twirl strength speed", float) = 0
+
         //Polar coordinates
         [Space(20)]
         [Toggle(POLAR)]
@@ -148,6 +156,7 @@ Shader "VFX/VFXMasterShaderTransparent"
             #pragma shader_feature_local DISTORTION_FLOW
             #pragma shader_feature_local SOFT_BLEND
             #pragma shader_feature_local BANDING
+            #pragma shader_feature_local TWIRL
             #pragma shader_feature_local POLAR
             #pragma shader_feature_local CIRCLE_MASK
             #pragma shader_feature_local RECT_MASK
@@ -238,6 +247,10 @@ Shader "VFX/VFXMasterShaderTransparent"
                 float4 _DistortionFlowFrequency;
                 float4 _DistortionFlowSpeed;
 
+                float _TwirlStrength;
+                float4 _TwirlCenter;
+                float _TwirlSpeed;
+
                 float _Smoothness;
                 float _OuterRadius;
                 float _InnerRadius;
@@ -251,6 +264,18 @@ Shader "VFX/VFXMasterShaderTransparent"
                 float _MaskStrength2;
                 float _MaskStrength3;
             CBUFFER_END
+
+            #ifdef TWIRL
+            float2 ApplyTwirl(float2 uv, float strength)
+            {
+                float2 delta = uv - _TwirlCenter.xy;
+                float angle = length(delta) * strength;
+                float sine, cosine;
+                sincos(angle, sine, cosine);
+                return float2(cosine * delta.x - sine * delta.y,
+                              sine * delta.x + cosine * delta.y) + _TwirlCenter.xy;
+            }
+            #endif
 
             Varyings vert(Attributes v)
             {
@@ -292,19 +317,30 @@ Shader "VFX/VFXMasterShaderTransparent"
                 float2 maskUV2 = i.maskUV2;
                 float2 maskUV3 = i.maskUV3;
 
+                //Twirl in texture UV space before polar conversion and panning.
+                #ifdef TWIRL
+                float twirlStrength = _TwirlStrength + _Time.y * _TwirlSpeed;
+                uv = ApplyTwirl(uv, twirlStrength);
+                displUV = ApplyTwirl(displUV, twirlStrength);
+                secondaryUV = ApplyTwirl(secondaryUV, twirlStrength);
+                maskUV = ApplyTwirl(maskUV, twirlStrength);
+                maskUV2 = ApplyTwirl(maskUV2, twirlStrength);
+                maskUV3 = ApplyTwirl(maskUV3, twirlStrength);
+                #endif
+
                 //Polar coords
                 #ifdef POLAR
-                float2 mappedUV = (i.uv * 2) - 1;
+                float2 mappedUV = (uv * 2) - 1;
                 uv = float2(atan2(mappedUV.y, mappedUV.x) / PI / 2.0 + 0.5, length(mappedUV));
-                mappedUV = (i.displUV * 2) - 1;
+                mappedUV = (displUV * 2) - 1;
                 displUV = float2(atan2(mappedUV.y, mappedUV.x) / PI / 2.0 + 0.5, length(mappedUV));
-                mappedUV = (i.secondaryUV * 2) - 1;
+                mappedUV = (secondaryUV * 2) - 1;
                 secondaryUV = float2(atan2(mappedUV.y, mappedUV.x) / PI / 2.0 + 0.5, length(mappedUV));
-                mappedUV = (i.maskUV * 2) - 1;
+                mappedUV = (maskUV * 2) - 1;
                 maskUV = float2(atan2(mappedUV.y, mappedUV.x) / PI / 2.0 + 0.5, length(mappedUV));
-                mappedUV = (i.maskUV2 * 2) - 1;
+                mappedUV = (maskUV2 * 2) - 1;
                 maskUV2 = float2(atan2(mappedUV.y, mappedUV.x) / PI / 2.0 + 0.5, length(mappedUV));
-                mappedUV = (i.maskUV3 * 2) - 1;
+                mappedUV = (maskUV3 * 2) - 1;
                 maskUV3 = float2(atan2(mappedUV.y, mappedUV.x) / PI / 2.0 + 0.5, length(mappedUV));
                 #endif
 
