@@ -25,6 +25,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - CIRCLE_MASK
   - DIRECTIONAL_DISPLACEMENT
   - DISTORTION_FLOW
   - TWIRL
@@ -132,7 +133,7 @@ Material:
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
     - _BurnSize: 0
-    - _CircleMask: 0
+    - _CircleMask: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Contrast: 0
@@ -150,7 +151,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _InnerRadius: 0
+    - _InnerRadius: -1
     - _IntersectionThresholdMax: 1
     - _MaskInvert: 0
     - _MaskInvert2: 0
@@ -160,7 +161,7 @@ Material:
     - _MaskStrength3: 1
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _OuterRadius: 0.5
+    - _OuterRadius: 0.2
     - _Parallax: 0.005
     - _PolarCoords: 0
     - _Power: 0
