@@ -131,6 +131,8 @@ Material:
     - _REFLECTIONS_ROUGHNESS: 0
     - _REFLECTIONS_WEIGHT: 1
     - _ReceiveShadows: 0
+    - _Rim_Alpha: 1
+    - _Rim_Power: 3
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -139,6 +141,7 @@ Material:
     - _Surface: 1
     - _TRANSPARENCY: 0
     - _UVSec: 0
+    - _UseRimAlpha: 0
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZTest: 4
