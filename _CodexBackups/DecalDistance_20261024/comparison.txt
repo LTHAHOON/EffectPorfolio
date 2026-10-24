@@ -1,0 +1,6 @@
+capture_clean_auto distance=12 changedPixels=0
+capture_clean_auto distance=30 changedPixels=0
+capture_clean_auto distance=60 changedPixels=0
+capture_fixed_auto distance=12 changedPixels=273214
+capture_fixed_auto distance=30 changedPixels=35038
+capture_fixed_auto distance=60 changedPixels=8450
