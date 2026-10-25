@@ -61,7 +61,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - Normal_Blend: 1.5
+    - Normal_Blend: 0.7
     - _Base_Intensity: 1
     - _Base_Power: 1.2
     - _DecalMeshBiasType: 0
@@ -75,7 +75,7 @@ Material:
     m_Colors:
     - _Base_Color: {r: 0.2603773, g: 0.12701331, b: 0, a: 1}
     - _Base_Tiling: {r: 1.2, g: 1.2, b: 0, a: 0}
-    - _Tiling: {r: 1.2, g: 1.2, b: 0, a: 0}
+    - _Tiling: {r: 2, g: 2, b: 0, a: 0}
     - _Vector2: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

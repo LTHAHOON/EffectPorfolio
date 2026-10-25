@@ -13,7 +13,7 @@ TagManager:
   - UI
   - Ground
   - DecalBlock
-  - 
+  - Enemy
   - 
   - 
   - 
@@ -50,4 +50,5 @@ TagManager:
   - Light Layer 5
   - Light Layer 6
   - Light Layer 7
+  - Decal Layer
   m_MigratedRenderPipelines: []

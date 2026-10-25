@@ -1,0 +1,8 @@
+SUCCESS
+Backup: _CodexBackups/GroundDecalLayers_20261025_195139
+Decal bit: 256
+Receiver: Cube mask=257 shader=Universal Render Pipeline/Lit
+Projector: DecalProjector mask=256 material=Shader Graphs_New ShaderGraph Decal
+Renderer features: DecalRendererFeature=True, ScreenSpaceAmbientOcclusion=True, DecalBlock=False, Ground=False
+Non-ground receivers with Decal bit: 0
+Rendered pixels affected by projector: 15035

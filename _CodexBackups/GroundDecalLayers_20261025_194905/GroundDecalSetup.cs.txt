@@ -1,0 +1,204 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.Rendering.Universal;
+
+// Editor-only repair command. The request file is consumed once, after compilation.
+[InitializeOnLoad]
+public static class GroundDecalSetup
+{
+    const string Request = "tools/ground-decal-setup.request";
+    const string Report = "tools/ground-decal-setup-result.txt";
+
+    static GroundDecalSetup()
+    {
+        EditorApplication.delayCall += RunRequested;
+    }
+
+    static void RunRequested()
+    {
+        if (!File.Exists(Request)) return;
+        if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling)
+        {
+            EditorApplication.delayCall += RunRequested;
+            return;
+        }
+        File.Delete(Request);
+        try { Apply(); }
+        catch (Exception e)
+        {
+            File.WriteAllText(Report, "FAILED\n" + e);
+            Debug.LogException(e);
+        }
+    }
+
+    [MenuItem("Tools/Effects/Configure Ground Only Decals")]
+    public static void Apply()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            throw new InvalidOperationException("Run this command in Edit Mode.");
+        var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+        if (scene.path != "Assets/FX/Scenes/SampleScene.unity")
+            throw new InvalidOperationException("Open SampleScene before configuring its decals.");
+        var renderers = scene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<Renderer>(true)).ToArray();
+        var projectors = scene.GetRootGameObjects().SelectMany(go => go.GetComponentsInChildren<DecalProjector>(true)).ToArray();
+        int ground = LayerMask.NameToLayer("Ground");
+        if (ground < 0 || !renderers.Any(r => r.gameObject.layer == ground) || projectors.Length == 0)
+            throw new InvalidOperationException("Ground renderers and a DecalProjector are required.");
+
+        // Preserve the user's current in-memory edits before changing the setup.
+        string backup = "_CodexBackups/GroundDecalLayers_" + DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        Directory.CreateDirectory(backup);
+        EditorSceneManager.SaveScene(scene);
+        AssetDatabase.SaveAssets();
+        File.Copy(scene.path, Path.Combine(backup, "SampleScene.before.unity"));
+        File.Copy("Assets/Settings/PC_Renderer.asset", Path.Combine(backup, "PC_Renderer.before.asset"));
+        File.Copy("ProjectSettings/TagManager.asset", Path.Combine(backup, "TagManager.before.asset"));
+
+        var tags = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
+        var layers = tags.FindProperty("m_RenderingLayers");
+        int index = -1;
+        for (int i = 1; i < layers.arraySize; i++)
+            if (string.Equals(layers.GetArrayElementAtIndex(i).stringValue, "Decal Layer", StringComparison.OrdinalIgnoreCase)) { index = i; break; }
+        if (index < 0)
+        {
+            index = layers.arraySize;
+            if (index >= 32) throw new InvalidOperationException("No free Rendering Layer slot.");
+            layers.InsertArrayElementAtIndex(index);
+            layers.GetArrayElementAtIndex(index).stringValue = "Decal Layer";
+            tags.ApplyModifiedProperties();
+        }
+        uint decalMask = 1u << index;
+        // Consolidate the temporary slot created by the first repair into the user's layer.
+        uint temporaryMask = 0;
+        if (layers.arraySize == 10 && index == 8 && layers.GetArrayElementAtIndex(9).stringValue == "Decal")
+        {
+            temporaryMask = 1u << 9;
+            layers.arraySize = 9;
+            tags.ApplyModifiedProperties();
+        }
+        var data = AssetDatabase.LoadAssetAtPath<UniversalRendererData>("Assets/Settings/PC_Renderer.asset");
+        Undo.RecordObject(data, "Configure ground decal renderer");
+        var dataSO = new SerializedObject(data);
+        foreach (string field in new[] { "m_OpaqueLayerMask", "m_PrepassLayerMask" })
+            // Restore the intended existing masks, including Ground and DecalBlock.
+            dataSO.FindProperty(field).intValue = field == "m_OpaqueLayerMask" ? 503 : 247;
+        dataSO.FindProperty("m_DefaultStencilState").FindPropertyRelative("overrideStencilState").boolValue = false;
+        dataSO.ApplyModifiedProperties();
+        foreach (var feature in data.rendererFeatures)
+        {
+            Undo.RecordObject(feature, "Configure ground decals");
+            if (feature is RenderObjects && (feature.name == "Ground" || feature.name == "DecalBlock"))
+                feature.SetActive(false);
+            if (feature is DecalRendererFeature)
+            {
+                feature.SetActive(true);
+                var so = new SerializedObject(feature);
+                so.FindProperty("m_Settings").FindPropertyRelative("decalLayers").boolValue = true;
+                so.ApplyModifiedProperties();
+            }
+            EditorUtility.SetDirty(feature);
+        }
+        var report = new StringBuilder("SUCCESS\nBackup: " + backup + "\nDecal bit: " + decalMask + "\n");
+        foreach (var r in renderers)
+        {
+            bool receives = r.gameObject.layer == ground;
+            uint existing = r.renderingLayerMask & ~temporaryMask;
+            uint mask = receives ? existing | decalMask : existing & ~decalMask;
+            if (mask != r.renderingLayerMask)
+            {
+                Undo.RecordObject(r, "Configure decal receivers");
+                r.renderingLayerMask = mask;
+                PrefabUtility.RecordPrefabInstancePropertyModifications(r);
+                EditorUtility.SetDirty(r);
+            }
+            if (receives) report.AppendLine("Receiver: " + r.name + " mask=" + r.renderingLayerMask + " shader=" + r.sharedMaterial?.shader?.name);
+        }
+        foreach (var p in projectors)
+        {
+            Undo.RecordObject(p, "Restrict projector to ground decals");
+            p.renderingLayerMask = decalMask;
+            PrefabUtility.RecordPrefabInstancePropertyModifications(p);
+            EditorUtility.SetDirty(p);
+            // Notify the URP decal entity cache after changing the mask.
+            bool enabled = p.enabled;
+            p.enabled = false;
+            p.enabled = enabled;
+            report.AppendLine("Projector: " + p.name + " mask=" + (uint)p.renderingLayerMask + " material=" + p.material?.name);
+        }
+        EditorUtility.SetDirty(data);
+        AssetDatabase.SaveAssets();
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        report.AppendLine("Renderer features: " + string.Join(", ", data.rendererFeatures.Select(f => f.name + "=" + f.isActive)));
+        report.AppendLine("Non-ground receivers with Decal bit: " + renderers.Count(r => r.gameObject.layer != ground && (r.renderingLayerMask & decalMask) != 0));
+        File.WriteAllText(Report, report.ToString());
+        EditorApplication.delayCall += CapturePreview;
+        SceneView.RepaintAll();
+        UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+        Debug.Log("Ground-only decal setup complete. " + report);
+    }
+
+    static void CapturePreview()
+    {
+        var camera = Camera.main;
+        if (camera == null) return;
+        var previous = camera.targetTexture;
+        var active = RenderTexture.active;
+        var rt = RenderTexture.GetTemporary(960, 540, 24, RenderTextureFormat.ARGB32);
+        var image = new Texture2D(960, 540, TextureFormat.RGB24, false);
+        try
+        {
+            camera.targetTexture = rt;
+            camera.Render();
+            RenderTexture.active = rt;
+            image.ReadPixels(new Rect(0, 0, 960, 540), 0, 0);
+            image.Apply();
+            File.WriteAllBytes("tools/ground-decal-preview.png", image.EncodeToPNG());
+            var withDecal = image.GetPixels32();
+            var projectors = UnityEngine.Object.FindObjectsByType<DecalProjector>(FindObjectsSortMode.None);
+            var masks = projectors.Select(p => p.renderingLayerMask).ToArray();
+            try
+            {
+                // Keep VFX and camera fixed; filter the projector out for a direct comparison.
+                for (int i = 0; i < projectors.Length; i++)
+                {
+                    projectors[i].renderingLayerMask = 0u;
+                    projectors[i].enabled = false;
+                    projectors[i].enabled = true;
+                }
+                camera.Render();
+                RenderTexture.active = rt;
+                image.ReadPixels(new Rect(0, 0, 960, 540), 0, 0);
+                image.Apply();
+                File.WriteAllBytes("tools/ground-decal-filtered-out.png", image.EncodeToPNG());
+                var withoutDecal = image.GetPixels32();
+                int changed = 0;
+                for (int i = 0; i < withDecal.Length; i++)
+                    if (Math.Abs(withDecal[i].r - withoutDecal[i].r) + Math.Abs(withDecal[i].g - withoutDecal[i].g) + Math.Abs(withDecal[i].b - withoutDecal[i].b) > 12) changed++;
+                File.AppendAllText(Report, "Rendered pixels affected by projector: " + changed + "\n");
+            }
+            finally
+            {
+                for (int i = 0; i < projectors.Length; i++)
+                {
+                    projectors[i].renderingLayerMask = masks[i];
+                    projectors[i].enabled = false;
+                    projectors[i].enabled = true;
+                }
+            }
+        }
+        catch (Exception e) { Debug.LogWarning("Ground decal preview capture: " + e.Message); }
+        finally
+        {
+            camera.targetTexture = previous;
+            RenderTexture.active = active;
+            RenderTexture.ReleaseTemporary(rt);
+            UnityEngine.Object.DestroyImmediate(image);
+        }
+    }
+}

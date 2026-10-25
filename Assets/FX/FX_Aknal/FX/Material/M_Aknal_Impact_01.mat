@@ -15,13 +15,15 @@ Material:
   - CIRCLE_MASK
   - DISTORTION_FLOW
   - MASK_INVERT
+  - MASK_TEX
   - POLAR
+  - TWIRL
   - VERTEX_COLOR
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2450
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
@@ -62,11 +64,11 @@ Material:
         m_Scale: {x: 1, y: 0}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: ed1b120350fb22c41ac36d25a58fcd92, type: 3}
+        m_Texture: {fileID: 2800000, guid: a2ff3f3e1c969944eb93b8bbdc477291, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 93db43e7ef73b004d9a12cb85990c0a0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskTex2:
@@ -130,15 +132,15 @@ Material:
     - _CutoffSoftness: 1
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
-    - _DisplacementAmount: -0.04
-    - _DistortionFlowAmount: 0.02
+    - _DisplacementAmount: 1
+    - _DistortionFlowAmount: 0.05
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _InnerRadius: -0.085
+    - _InnerRadius: 0.106
     - _IntersectionThresholdMax: 1
     - _MaskInvert: 1
     - _MaskInvert2: 0
@@ -160,7 +162,7 @@ Material:
     - _RectSmoothness: 0
     - _RectWidth: 0
     - _SecondTex: 0
-    - _Smoothness: 0.469
+    - _Smoothness: 0.532
     - _SmoothnessTextureChannel: 0
     - _SoftBlend: 0
     - _SpecularHighlights: 1
@@ -171,10 +173,10 @@ Material:
     - _TwirlStrength: 5
     - _UseDirectionalDisplacement: 0
     - _UseDistortionFlow: 1
-    - _UseMaskTex: 0
+    - _UseMaskTex: 1
     - _UseMaskTex2: 0
     - _UseMaskTex3: 0
-    - _UseTwirl: 0
+    - _UseTwirl: 1
     - _UseVertexColor: 1
     - _VertexOffset: 0
     - _VertexOffsetAmount: 0
@@ -184,12 +186,12 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BurnCol: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 34.29675, g: 34.29675, b: 34.29675, a: 1}
+    - _Color: {r: 2.9960787, g: 2.9960787, b: 2.9960787, a: 1}
     - _DisplacementDirection: {r: 1, g: 0, b: 0, a: 0}
     - _DistortionFlowFrequency: {r: 4, g: 6, b: 0, a: 0}
-    - _DistortionFlowSpeed: {r: 1, g: 1.3, b: 0, a: 0}
+    - _DistortionFlowSpeed: {r: 3.5, g: 5, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _MaskPanningSpeed: {r: 0, g: 0, b: 0, a: 0}
+    - _MaskPanningSpeed: {r: -1, g: 0, b: 0, a: 0}
     - _MaskPanningSpeed2: {r: 0, g: 0, b: 0, a: 0}
     - _MaskPanningSpeed3: {r: 0, g: 0, b: 0, a: 0}
     - _PanningSpeed: {r: 0, g: 0, b: 0, a: 0}
